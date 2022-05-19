@@ -1,0 +1,75 @@
+---
+- name: Install Apache Tomcat10 using ansible
+  hosts: all
+  become_method: sudo
+  become: yes
+  tasks:
+    - name: Add EPEL repository
+      dnf:
+        name: epel-release
+        state: present
+
+    - name: Install basic packages
+      package:
+        name: ['vim','bash-completion','tmux','tree','htop','wget','unzip','curl','git']
+        state: present       
+
+    - name: Update the System Packages
+      dnf:
+        name: '*'
+        state: latest
+ 
+    - name: Install JAVA
+      dnf:
+        name: java-11-openjdk.x86_64
+        state: present
+ 
+    - name: Download Tomee
+      get_url: 
+        url: https://www.apache.org/dyn/closer.cgi/tomee/tomee-9.0.0-M7/apache-tomee-9.0.0-M7-plume.tar.gz   
+        dest: /tmp/apache-tomee-9.0.0-M7-plume.tar.gz
+
+    - name: Add tomee group
+      group:
+        name: tomee
+
+    - name: Add "tomee" user
+      user:
+        name: tomee
+        group: tomee
+        home: /usr/share/tomee
+        createhome: no
+        system: yes
+
+    - name: Extract tomee.tgz into opt
+      ansible.builtin.unarchive:
+        src: /tmp/apache-tomee-9.0.0-M7-plume.tar.gz
+        dest: /opt
+        owner: tomee
+        group: tomee
+        remote_src: yes
+
+    - name: Copy tomee service file
+      copy:
+        src: tomee.service
+        dest: /etc/systemd/system/tomee.service
+
+    - name: Start and enable tomee
+      service:
+        daemon_reload: yes
+        name: tomee
+        state: started
+        enabled: yes
+
+    - name: Start and enable firewalld
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: Open tomee port on the firewall
+      firewalld:
+        port: 8080/tcp
+        permanent: true
+        state: enabled
+        immediate: yes

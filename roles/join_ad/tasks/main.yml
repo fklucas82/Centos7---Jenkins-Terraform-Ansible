@@ -1,0 +1,2 @@
+- name: Join New VM to AD
+  import_tasks: join_ad.yml

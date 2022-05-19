@@ -1,0 +1,73 @@
+---
+# Download NCPA
+
+- name: Download NCPA (RedHat & CentOS 64)
+  get_url: url=https://assets.nagios.com/downloads/ncpa/ncpa-latest.el{{ ansible_distribution_major_version }}.x86_64.rpm dest=/tmp/ncpa.rpm
+  when: ansible_os_family == "RedHat" and ansible_architecture == "x86_64"
+
+
+# Install NCPA
+
+- name: Install NCPA (RedHat & CentOS)
+  dnf:
+    name: /tmp/ncpa.rpm
+    state: present
+    disable_gpg_check: yes
+  when: ansible_os_family == "RedHat"
+
+
+# Set NCPA Token
+
+- name: Set NCPA Token
+  lineinfile:
+    dest: /usr/local/ncpa/etc/ncpa.cfg
+    regexp: ^community_string
+    line: "community_string = {{ ncpa_token }}"      
+
+
+
+# Restart NCPA
+
+- name: Restart NCPA
+  service:
+    name: ncpa_listener
+    state: restarted
+    enabled: yes
+
+
+
+# Configure Firewall
+- name: Open NCPA Port (CentOS & RHEL 6)
+  iptables:
+    chain: INPUT
+    jump: ACCEPT
+    destination_port: 5693
+    state: present
+    protocol: tcp
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version|int == 6
+
+- name: Open NCPA Port (CentOS 7)
+  iptables:
+    chain: INPUT
+    jump: ACCEPT
+    destination_port: 5693
+    state: present
+    protocol: tcp
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int == 7
+
+- name: Open NCPA Port (RedHat 7)
+  firewalld:
+    immediate: yes
+    permanent: yes
+    port: 5693
+    state: enabled
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version|int == 7
+
+- name: Save iptables Config (CentOS & RHEL 6)
+  shell: service iptables save
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version|int == 6
+
+- name: Save iptables Config (CentOS 7)
+  shell: iptables-save
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version|int == 7
+

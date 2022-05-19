@@ -1,0 +1,2 @@
+- name: Run dnf Update
+  import_tasks: dnf_update.yml
