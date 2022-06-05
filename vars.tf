@@ -17,6 +17,14 @@ variable "disk0_label" {}
 variable "disk0_size" {}
 variable "disk1_label" {}
 variable "disk1_size" {}
+variable "disk2_label" {}
+variable "disk2_size" {}
+variable "disk3_label" {}
+variable "disk3_size" {}
+variable "disk4_label" {}
+variable "disk4_size" {}
+variable "disk5_label" {}
+variable "disk5_size" {}
 
 #IP and DNS
 variable "domain" {}
@@ -33,7 +41,5 @@ variable "ansible_become_user" {}
 variable "ansible_become_password" {}
 
 # Ansible Playbook Variables
-variable "xi_api_key" {}
-variable "ncpa_token" {}
 variable "ad_user" {}
 variable "ad_pass" {}

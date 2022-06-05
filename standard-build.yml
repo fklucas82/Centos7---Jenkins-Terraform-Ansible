@@ -1,8 +1,9 @@
 ---
   - hosts: all
     vars:
-      xi_ip: 'nagios.ia.wd.org'
+      #xi_ip: 'nagios.ia.wd.org'
       ansible_host_key_checking: false
+      ansible_python_interpreter: /usr/bin/python3
     become: yes
     become_method: sudo
     roles:
@@ -10,12 +11,12 @@
         tags: ['DNF']
       - role: join_ad
         tags: ['AD']
-      - role: ncpa_install_linux
-        tags: ['NCPA']
-      - role: register_with_xi
-        tags: ['XI']
-      - role: install_fireeye
-        tags: ['FX']
+      # - role: ncpa_install_linux
+      #   tags: ['NCPA']
+      # - role: register_with_xi
+      #   tags: ['XI']
+      # - role: install_fireeye
+      #   tags: ['FX']
     handlers:
       - name: restart sssd
         service:

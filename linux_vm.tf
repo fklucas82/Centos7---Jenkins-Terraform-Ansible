@@ -57,11 +57,38 @@ resource "vsphere_virtual_machine" "vm" {
     eagerly_scrub    = false
     thin_provisioned = true
   }
-
   disk {
     label            = "${var.disk1_label}"
     unit_number      = 1
     size             = "${var.disk1_size}"
+    eagerly_scrub    = false
+    thin_provisioned = true
+  }
+  disk {
+    label            = "${var.disk2_label}"
+    unit_number      = 2
+    size             = "${var.disk2_size}"
+    eagerly_scrub    = false
+    thin_provisioned = true
+  }
+  disk {
+    label            = "${var.disk3_label}"
+    unit_number      = 3
+    size             = "${var.disk3_size}"
+    eagerly_scrub    = false
+    thin_provisioned = true
+  }
+  disk {
+    label            = "${var.disk4_label}"
+    unit_number      = 4
+    size             = "${var.disk4_size}"
+    eagerly_scrub    = false
+    thin_provisioned = true
+  }
+  disk {
+    label            = "${var.disk5_label}"
+    unit_number      = 5
+    size             = "${var.disk5_size}"
     eagerly_scrub    = false
     thin_provisioned = true
   }

@@ -1,26 +1,33 @@
-
 #Build variables
-vm_name= "wdm4demo"
+vm_name= "fkllab-jenkins"
 #IP
-domain= "ia.wd.org"
-ipv4_addr="10.1.10.15"
-ipv4_cidr= 19
-ipv4_gw= "10.1.0.1"
+domain= "fkl-lab.internal"
+ipv4_addr="192.168.5.90"
+ipv4_cidr= 22
+ipv4_gw= "192.168.4.1"
 #vSphere inventory variables
-datacenter= "IWD_Prod"
-vm_folder= "Linux/Linux_Prod"
-vsphere_server= "vcenterd.ia.wd.org"
-datastore= "iwd_ds0"
-resource_pool= "Server Cluster/Resources"
-network_name= "DPG_100"
-template= "c74ta"
+datacenter= "vSAN Datacenter"
+vm_folder= "Linux"
+vsphere_server= "vsanvcsa.fkl-lab.internal"
+datastore= "vsanDatastore"
+resource_pool= "vSAN Cluster/Resources"
+network_name= "Default"
+template= "CentOS7-Template"
 #vm hardware variables
 cpu_count= 2
 memory_mb= 4096
 disk0_label= "disk0"
-disk0_size= 80
+disk0_size= 25
 disk1_label= "disk1"
-disk1_size= 50
+disk1_size= 25
+disk2_label= "disk2"
+disk2_size= 25
+disk3_label= "disk3"
+disk3_size= 25
+disk4_label= "disk4"
+disk4_size= 25
+disk5_label= "disk5"
+disk5_size= 5
 #DNS
-dns_srv_list= ["10.1.0.145", "10.1.0.146"]
-dns_suffixes= ["ia.wd.org", "wd.org"]
+dns_srv_list= ["192.168.5.100", "192.168.5.101"]
+dns_suffixes= ["fkl-lab.internal"]

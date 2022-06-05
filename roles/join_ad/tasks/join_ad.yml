@@ -1,12 +1,18 @@
 - name: dnf - Install ad_auth required tools
   dnf: 
-    name: python-pip,python3-libselinux,realmd,sssd,oddjob,oddjob-mkhomedir,adcli,samba-common,samba-common-tools,python3-pip,sudo
+    name: python3-pip,python3-libselinux,realmd,sssd,oddjob,oddjob-mkhomedir,adcli,samba-common,samba-common-tools,python3-pip,sudo
     state: present
   become: yes
+
+- name: install python-setuptools
+  package:
+    name: python-setuptools
+    state: present
 
 - name: Install pexpect using pip
   pip:
     name: pexpect
+    executable: pip3
   become: yes
 
 - name: Check if machine is bound
@@ -22,13 +28,13 @@
 # The SSSD service fails if the template was already joined
 # If realm list is populated the playbook leaves the domain and rejoins in the next step
 - name: Leave AD if already joined
-  shell: /bin/bash -c "/usr/sbin/realm leave ia.wd.org"
+  shell: /bin/bash -c "/usr/sbin/realm leave fkl-lab.internal"
   when: realmd_bound is search ("client-software:\ sssd")
   become: yes
 
 - name: Join system to AD
   expect:
-    command: /bin/bash -c "/usr/sbin/realm join --user={{ ad_user }} ia.wd.org"
+    command: /bin/bash -c "/usr/sbin/realm join --user={{ ad_user }} fkl-lab.internal"
     responses:
       Password for *: "{{ ad_pass }}"
   when: realmd_bound is search ("sssd")
@@ -37,7 +43,7 @@
 - name: Add line to sssd.conf
   lineinfile: 
     dest: /etc/sssd/sssd.conf
-    line: 'default_domain_suffix = ia.wd.org'
+    line: 'default_domain_suffix = fkl-lab.internal'
     insertafter: '^\[sssd\]'
   notify:
     - restart sssd  
@@ -47,25 +53,25 @@
   lineinfile: 
     dest: /etc/sssd/sssd.conf
     line: 'override_homedir=/home/%d/%u'
-    insertafter: '^\[domain/ia.wd.org\]'
+    insertafter: '^\[domain/fkl-lab.internal\]'
   notify:
     - restart sssd
   become: yes
 
 - name: Make ia.wd.org home directory
   file:
-    path: /home/ia.wd.org
+    path: /home/fkl-lab.internal
     state: directory
   become: yes
 
 - name: Restrict access based on specific ad group
-  command: /bin/bash -c "/usr/sbin/realm permit -g LinuxAdmin@ia.wd.org"
+  command: /bin/bash -c "/usr/sbin/realm permit -g LinuxAdmin@fkl-lab.internal"
   become: yes
 
 - name: Add AD group to sudoers
   lineinfile:
     dest: /etc/sudoers
-    line: '%LinuxAdmin@ia.wd.org        ALL=(ALL)       ALL'
+    line: '%LinuxAdmin@fkl-lab.internal        ALL=(ALL)       ALL'
     insertafter: '^%wheel'
   become: yes
 
