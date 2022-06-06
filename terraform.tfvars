@@ -1,8 +1,8 @@
 #Build variables
-vm_name= "fkllab-jenkins"
+vm_name= "fkllab-vpn"
 #IP
 domain= "fkl-lab.internal"
-ipv4_addr="192.168.5.90"
+ipv4_addr="192.168.5.91"
 ipv4_cidr= 22
 ipv4_gw= "192.168.4.1"
 #vSphere inventory variables
