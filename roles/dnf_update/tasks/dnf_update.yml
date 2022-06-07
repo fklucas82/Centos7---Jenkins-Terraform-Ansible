@@ -2,3 +2,4 @@
   dnf:
     name: '*'
     state: latest
+  ansible_python_interpreter: /usr/bin/python2
