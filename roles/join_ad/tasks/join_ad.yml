@@ -1,7 +1,8 @@
+
 - name: dnf - Install ad_auth required tools
   dnf: 
-    name: python3-pip,python3-libselinux,realmd,sssd,oddjob,oddjob-mkhomedir,adcli,samba-common,samba-common-tools,python3-pip,sudo
-    state: present
+    name: epel-release,python3-pip,python3-libselinux,realmd,sssd,oddjob,oddjob-mkhomedir,adcli,samba-common,samba-common-tools,python3-pip,sudo
+    state: latest
   become: yes
 
 - name: install python-setuptools
@@ -10,11 +11,12 @@
     state: present
 
 - name: Install pexpect using pip
+  vars: 
+    ansible_python_interpreter: /usr/bin/python2
   pip:
     name: pexpect
-    executable: pip3
   become: yes
-
+  
 - name: Check if machine is bound
   shell: /bin/bash -c "realm list | grep sssd"
   register: realmd_bound
@@ -37,6 +39,9 @@
     command: /bin/bash -c "/usr/sbin/realm join --user={{ ad_user }} fkl-lab.internal"
     responses:
       Password for *: "{{ ad_pass }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python2
+  
   when: realmd_bound is search ("sssd")
   become: yes
 
