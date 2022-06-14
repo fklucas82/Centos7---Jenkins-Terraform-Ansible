@@ -1,20 +1,8 @@
 
 - name: dnf - Install ad_auth required tools
   dnf: 
-    name: epel-release,python3-pip,python3-libselinux,realmd,sssd,oddjob,oddjob-mkhomedir,adcli,samba-common,samba-common-tools,python3-pip,sudo
+    name: realmd,sssd,oddjob,oddjob-mkhomedir,adcli,samba-common-tools,adcli,krb5-workstation
     state: latest
-  become: yes
-
-- name: install python-setuptools
-  package:
-    name: python-setuptools
-    state: present
-
-- name: Install pexpect using pip
-  vars: 
-    ansible_python_interpreter: /usr/bin/python2
-  pip:
-    name: pexpect
   become: yes
   
 - name: Check if machine is bound
@@ -30,25 +18,22 @@
 # The SSSD service fails if the template was already joined
 # If realm list is populated the playbook leaves the domain and rejoins in the next step
 - name: Leave AD if already joined
-  shell: /bin/bash -c "/usr/sbin/realm leave fkl-lab.internal"
+  shell: /bin/bash -c "/usr/sbin/realm leave {{ domain }}"
   when: realmd_bound is search ("client-software:\ sssd")
   become: yes
 
 - name: Join system to AD
   expect:
-    command: /bin/bash -c "/usr/sbin/realm join --user={{ ad_user }} fkl-lab.internal"
+    command: /bin/bash -c "/usr/sbin/realm join --user={{ ad_user }} --computer-ou='{{ OU }}' {{ domain }}"
     responses:
       Password for *: "{{ ad_pass }}"
-  vars:
-    ansible_python_interpreter: /usr/bin/python2
-  
   when: realmd_bound is search ("sssd")
   become: yes
 
 - name: Add line to sssd.conf
   lineinfile: 
     dest: /etc/sssd/sssd.conf
-    line: 'default_domain_suffix = fkl-lab.internal'
+    line: 'default_domain_suffix = {{ domain }}'
     insertafter: '^\[sssd\]'
   notify:
     - restart sssd  
@@ -58,25 +43,32 @@
   lineinfile: 
     dest: /etc/sssd/sssd.conf
     line: 'override_homedir=/home/%d/%u'
-    insertafter: '^\[domain/fkl-lab.internal\]'
+    insertafter: '^\[domain/{{ domain }}\]'
   notify:
     - restart sssd
   become: yes
 
-- name: Make ia.wd.org home directory
+- name: Make domain home directory
   file:
-    path: /home/fkl-lab.internal
+    path: /home/{{ domain }}
     state: directory
   become: yes
 
-- name: Restrict access based on specific ad group
-  command: /bin/bash -c "/usr/sbin/realm permit -g LinuxAdmin@fkl-lab.internal"
+- name: Deny all domain logins
+  command: /bin/bash -c "/usr/sbin/realm permit -a {{ domain }}"
   become: yes
+
+
+- name: Restrict access based on specific ad group
+  command: /bin/bash -c "/usr/sbin/realm permit -g {{ item }}@{{ domain }}"
+  become: yes
+  with_items: "{{ Groups }}"
 
 - name: Add AD group to sudoers
   lineinfile:
     dest: /etc/sudoers
-    line: '%LinuxAdmin@fkl-lab.internal        ALL=(ALL)       ALL'
+    line: '%{{ item }}@{{ domain }}       ALL=(ALL)       ALL'
     insertafter: '^%wheel'
   become: yes
+  with_items: "{{ AdminGroups }}"
 

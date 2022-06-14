@@ -1,3 +1,0 @@
-- name: Install Fireeye
-  import_tasks: install_fireeye.yml
-  

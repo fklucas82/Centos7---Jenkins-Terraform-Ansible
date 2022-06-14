@@ -1,7 +1,5 @@
 ---
   - hosts: all
-    vars:
-      ansible_host_key_checking: false
     become: yes
     become_method: sudo
     roles:
@@ -9,12 +7,6 @@
         tags: ['DNF']
       - role: join_ad
         tags: ['AD']
-      # - role: ncpa_install_linux
-      #   tags: ['NCPA']
-      # - role: register_with_xi
-      #   tags: ['XI']
-      # - role: install_fireeye
-      #   tags: ['FX']
     handlers:
       - name: restart sssd
         service:
