@@ -1,3 +1,10 @@
+- name: Register as user with password and auto-subscribe to available content.
+  community.general.redhat_subscription:
+    state: present
+    username: "{{ redhat-user }}"
+    password: "{{ redhat-pass }}"
+    auto_attach: true
+
 - name: Upgrade all packages
   dnf:
     name: '*'

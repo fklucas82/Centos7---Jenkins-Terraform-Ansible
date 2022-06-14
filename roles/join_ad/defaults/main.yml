@@ -1,0 +1,8 @@
+#domain to join
+domain: "SFG.CORP.LOCAL"
+OU: "OU=RedHat,OU=Servers,OU=Des Moines,DC=SFG,DC=CORP,DC=LOCAL"
+AdminGroups: 
+    - "{{ ansible_hostname }}-Admin"
+Groups: 
+    - "{{ ansible_hostname }}-Admin"
+    - "{{ ansible_hostname }}-Users"
